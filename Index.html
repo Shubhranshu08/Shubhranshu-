@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Special Birthday Celebration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #ffcce6, #ffb3d9);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow: hidden;
+        }
+        
+        .card-container {
+            width: 100%;
+            max-width: 500px;
+            height: 90vh;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #ff99cc;
+        }
+        
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 25px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        
+        .page.active {
+            display: flex;
+            opacity: 1;
+            z-index: 10;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            color: #ff3385;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+        
+        .heart-message {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #5a3d5c;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 240, 245, 0.8);
+            border-radius: 15px;
+            max-width: 90%;
+        }
+        
+        .action-btn {
+            background: linear-gradient(135deg, #ff3385, #ff66a3);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 8px 20px rgba(255,51,133,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .cake-container {
+            position: relative;
+            width: 220px;
+            height: 180px;
+            margin: 20px 0;
+        }
+        
+        .cake-layer {
+            position: absolute;
+            background: linear-gradient(to bottom, #ff99cc, #ff6699);
+            border-radius: 12px;
+        }
+        
+        .layer-1 { width: 180px; height: 50px; bottom: 0; left: 50%; transform: translateX(-50%); }
+        .layer-2 { width: 150px; height: 45px; bottom: 45px; left: 50%; transform: translateX(-50%); }
+        .layer-3 { width: 120px; height: 40px; bottom: 80px; left: 50%; transform: translateX(-50%); }
+        
+        .candle {
+            position: absolute;
+            width: 8px;
+            height: 40px;
+            background: white;
+            border-radius: 4px 4px 0 0;
+            bottom: 100px;
+            cursor: pointer;
+        }
+        
+        .candle.flame-on:before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 20px;
+            background: linear-gradient(to bottom, #ffff66, #ff9900);
+            border-radius: 50% 50% 20% 20%;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 15px #ff9900;
+        }
+        
+        .candle.flame-off:before {
+            content: '💨';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            font-size: 1.5rem;
+            animation: blowEffect 0.5s forwards;
+        }
+        
+        @keyframes blowEffect {
+            0% { transform: translateX(-50%) scale(0); opacity: 1; }
+            50% { transform: translateX(-50%) scale(1.2); opacity: 0.8; }
+            100% { transform: translateX(-50%) scale(1.5); opacity: 0; }
+        }
+        
+        .tap-counter {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            color: #ff3385;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px dashed #ff99cc;
+        }
+        
+        .progress-dots {
+            display: flex;
+            gap: 8px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 182, 193, 0.3);
+            border: 1px solid #ff99cc;
+            transition: all 0.3s ease;
+        }
+        
+        .dot.active {
+            background: #ff3385;
+            transform: scale(1.2);
+        }
+        
+        .floating-heart {
+            position: fixed;
+            color: #ff3385;
+            font-size: 1.5rem;
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+            animation: heartFloat 4s linear forwards;
+        }
+        
+        @keyframes heartFloat {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0.8); opacity: 0; }
+        }
+        
+        /* NEW STYLES FOR ROMANTIC PAGES */
+        .romantic-page .heart-message {
+            font-family: 'Brush Script MT', cursive, sans-serif;
+            font-style: italic;
+            font-size: 1.5rem;
+            background: rgba(255, 230, 240, 0.9);
+            border-left: 3px solid #ff3385;
+            border-right: 3px solid #ff3385;
+            padding: 25px;
+        }
+        
+        .love-title {
+            font-size: 2.2rem;
+            color: #ff0066;
+            margin-bottom: 30px;
+            font-family: 'Brush Script MT', cursive, sans-serif;
+            text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.5);
+        }
+        
+        .romantic-page {
+            background: linear-gradient(135deg, rgba(255,240,245,0.95), rgba(255,230,240,0.95));
+        }
+        
+        /* Special highlight for key phrases */
+        .highlight {
+            color: #ff0066;
+            font-weight: bold;
+            font-size: 1.6rem;
+        }
+        
+        .emoji-large {
+            font-size: 2.5rem;
+            margin: 15px 0;
+            display: block;
+        }
+        
+        @media (max-width: 500px) {
+            .page-title { font-size: 1.7rem; }
+            .heart-message { font-size: 1.1rem; padding: 15px; }
+            .action-btn { padding: 12px 25px; font-size: 1rem; }
+            .romantic-page .heart-message { font-size: 1.3rem; }
+            .love-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <!-- Page 1: Hey -->
+        <div class="page active" id="page1">
+            <h1 class="page-title">Hey there... 🌸</h1>
+            <div class="heart-message">
+                Do you feel the special energy in the air today?<br><br>
+                There's magic brewing, just for you...
+            </div>
+            <button class="action-btn" id="btn-page1">
+                <span>Let's Begin →</span>
+            </button>
+            <div class="progress-dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        
+        <!-- Page 2: Oops -->
+        <div class="page" id="page2">
+            <h1 class="page-title">Hold on... 🌟</h1>
+            <div class="heart-message">
+                My heart is racing! I almost forgot the most important words...<br><br>
+                Words that have been waiting just for this moment.
+            </div>
+            <button class="action-btn" id="btn-page2">
+                <span>Tell me →</span>
+            </button>
+            <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        
+        <!-- Page 3: Birthday -->
+        <div class="page" id="page3">
+            <h1 class="page-title">🎂 The Moment Is Here 🎉</h1>
+            <div class="heart-message">
+                Happy Birthday, my dear! 💖<br><br>
+                Today, the universe celebrates the day you graced this world with your presence.<br><br>
+                Let's create beautiful memories together...
+            </div>
+            <button class="action-btn" id="btn-page3">
+                <span>Let's Begin →</span>
+            </button>
+            <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        
+        <!-- Page 4: Candles -->
+        <div class="page" id="page4">
+            <h1 class="page-title">Make 7 Wishes ✨</h1>
+            <div class="cake-container">
+                <div class="cake-layer layer-1"></div>
+                <div class="cake-layer layer-2"></div>
+                <div class="cake-layer layer-3"></div>
+                
+                <!-- 7 Candles -->
+                <div class="candle flame-on" style="left: 15%;" data-id="1"></div>
+                <div class="candle flame-on" style="left: 25%;" data-id="2"></div>
+                <div class="candle flame-on" style="left: 35%;" data-id="3"></div>
+                <div class="candle flame-on" style="left: 50%;" data-id="4"></div>
+                <div class="candle flame-on" style="left: 65%;" data-id="5"></div>
+                <div class="candle flame-on" style="left: 75%;" data-id="6"></div>
+                <div class="candle flame-on" style="left: 85%;" data-id="7"></div>
+            </div>
+            <div class="heart-message">
+                Tap each candle to blow it out.<br>
+                Each flame carries a wish from my heart to yours.
+            </div>
+            <div class="tap-counter" id="candle-counter">Wishes made: <span id="candle-count">0</span>/7</div>
+            <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        
+        <!-- Page 5: Cut Cake -->
+        <div class="page" id="page5">
+            <h1 class="page-title">Share The Sweetness 🍰</h1>
+            <div class="cake-container">
+                <div class="cake-layer layer-1"></div>
+                <div class="cake-layer layer-2"></div>
+                <div class="cake-layer layer-3"></div>
+            </div>
+            <div class="heart-message">
+                Tap the cake 10 times to "cut" it!<br>
+                Each tap spreads sweetness and joy.
+            </div>
+            <div class="tap-counter" id="cut-counter">Cuts: <span id="cut-count">0</span>/10</div>
+            <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        
+        <!-- NEW PAGE 6: Cake Sweetness Message -->
+        <div class="page romantic-page" id="page6">
+            <h1 class="love-title">Sweet Moments 🍰</h1>
+            <div class="heart-message">
+                Yeah, I hope the sweetness of the cake touched your heart... 🤭<br><br>
+                <span class="highlight">Don't forget to share the sweetness with me 😉</span>
+                
+                <span class="emoji-large">🍓🍫🎂</span>
+            </div>
+            <button class="action-btn" id="btn-page6">
+                <span>Next →</span>
+            </button>
+            <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        
+        <!-- NEW PAGE 7: Special Message -->
+        <div class="page romantic-page" id="page7">
+            <h1 class="love-title">Special You ✨</h1>
+            <div class="heart-message">
+                By the way, I cannot wait to tell you how special you are for me...<br><br>
+                You're not just another person in my life<br>
+                You're <span class="highlight">the person</span> who makes my life worth living.
+                
+                <span class="emoji-large">💫🌟💖</span>
+            </div>
+            <button class="action-btn" id="btn-page7">
+                <span>Read My Heart →</span>
+            </button>
+            <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        
+        <!-- NEW PAGE 8: Heartfelt Message 1 -->
+        <div class="page romantic-page" id="page8">
+            <h1 class="love-title">My Heart's Truth 💝</h1>
+            <div class="heart-message">
+                Every time I think of you, my heart smiles a little more... 💕<br><br>
+                You have this amazing ability to turn ordinary moments into magical memories.<br>
+                Your laughter is my favorite sound, and your smile is my sunrise.
+                
+                <span class="emoji-large">☀️🌻🌈</span>
+            </div>
+            <button class="action-btn" id="btn-page8">
+                <span>More Feelings →</span>
+            </button>
+            <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        
+        <!-- NEW PAGE 9: Heartfelt Message 2 -->
+        <div class="page romantic-page" id="page9">
+            <h1 class="love-title">Why You're Special 🥰</h1>
+            <div class="heart-message">
+                You're the reason my world has colors instead of just shades... 🎨<br><br>
+                Your kindness touches everyone around you, and your presence makes everything better.<br>
+                In a world full of temporary things, you're my forever favorite.
+                
+                <span class="emoji-large">🦋✨🌠</span>
+            </div>
+            <button class="action-btn" id="btn-page9">
+                <span>Final Words →</span>
+            </button>
+            <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot active"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        
+        <!-- NEW PAGE 10: Final Heartfelt Message -->
+        <div class="page romantic-page" id="page10">
+            <h1 class="love-title">My Happiness ❤️</h1>
+            <div class="heart-message">
+                My happiness began the day you came into my life... 🌸<br><br>
+                You're not just important to me, you're essential.<br>
+                Like air to breathe, like stars to the night sky.<br><br>
+                Thank you for being you, for being mine, for being <span class="highlight">everything</span>.
+                
+                <span class="emoji-large">💌🌹🎁</span>
+            </div>
+            <button class="action-btn" id="btn-restart">
+                <span>Relive This Magic ↺</span>
+            </button>
+            <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot active"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // **SIMPLE & WORKING VERSION**
+        
+        // State variables
+        let currentPage = 1;
+        let candlesBlown = 0;
+        let cakeTaps = 0;
+        
+        // Initialize when page loads
+        window.onload = function() {
+            console.log("Birthday Card Loaded");
+            
+            // Setup button click events
+            setupButtons();
+            
+            // Setup candle tapping
+            setupCandles();
+            
+            // Setup cake tapping
+            setupCake();
+            
+            // Show first page
+            showPage(1);
+            
+            // Create some hearts
+            createHearts(3);
+        };
+        
+        // Create floating hearts
+        function createHearts(count) {
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'floating-heart';
+                    heart.innerHTML = '❤️';
+                    heart.style.left = Math.random() * 85 + 5 + '%';
+                    heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                    heart.style.color = getRandomColor();
+                    heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                    
+                    document.body.appendChild(heart);
+                    
+                    // Remove after animation
+                    setTimeout(() => {
+                        if (heart.parentNode) heart.remove();
+                    }, 4000);
+                }, i * 500);
+            }
+        }
+        
+        // Get random color
+        function getRandomColor() {
+            const colors = ['#ff3385', '#ff6699', '#ff0066'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // Setup button events
+        function setupButtons() {
+            // Page 1 button
+            document.getElementById('btn-page1').addEventListener('click', function() {
+                showPage(2);
+                createHearts(2);
+            });
+            
+            // Page 2 button
+            document.getElementById('btn-page2').addEventListener('click', function() {
+                showPage(3);
+                createHearts(2);
+            });
+            
+            // Page 3 button
+            document.getElementById('btn-page3').addEventListener('click', function() {
+                showPage(4);
+                createHearts(3);
+            });
+            
+            // Page 6 button (new)
+            document.getElementById('btn-page6').addEventListener('click', function() {
+                showPage(7);
+                createHearts(3);
+            });
+            
+            // Page 7 button (new)
+            document.getElementById('btn-page7').addEventListener('click', function() {
+                showPage(8);
+                createHearts(3);
+            });
+            
+            // Page 8 button (new)
+            document.getElementById('btn-page8').addEventListener('click', function() {
+                showPage(9);
+                createHearts(3);
+            });
+            
+            // Page 9 button (new)
+            document.getElementById('btn-page9').addEventListener('click', function() {
+                showPage(10);
+                createHearts(5);
+            });
+            
+            // Restart button
+            document.getElementById('btn-restart').addEventListener('click', restartCard);
+            
+            // Keyboard navigation for testing
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight') nextPage();
+                if (e.key === 'ArrowLeft') prevPage();
+            });
+        }
+        
+        // Setup candle tapping
+        function setupCandles() {
+            const candles = document.querySelectorAll('.candle');
+            
+            candles.forEach(candle => {
+                candle.addEventListener('click', function() {
+                    if (currentPage !== 4) return;
+                    
+                    // Only blow if still lit
+                    if (this.classList.contains('flame-on')) {
+                        this.classList.remove('flame-on');
+                        this.classList.add('flame-off');
+                        
+                        // Update counter
+                        candlesBlown++;
+                        document.getElementById('candle-count').textContent = candlesBlown;
+                        
+                        // Create heart effect
+                        createHearts(1);
+                        
+                        // If all candles blown, go to cake page
+                        if (candlesBlown === 7) {
+                            setTimeout(() => {
+                                showPage(5);
+                                createHearts(5);
+                            }, 1000);
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Setup cake tapping
+        function setupCake() {
+            const cakeContainer = document.getElementById('page5');
+            
+            cakeContainer.addEventListener('click', function(e) {
+                if (currentPage !== 5) return;
+                if (e.target.classList.contains('cake-layer') || e.target === cakeContainer) {
+                    // Update counter
+                    cakeTaps++;
+                    document.getElementById('cut-count').textContent = cakeTaps;
+                    
+                    // Add visual feedback
+                    const layers = document.querySelectorAll('.cake-layer');
+                    layers.forEach(layer => {
+                        layer.style.transform = 'translateX(-50%) scale(0.98)';
+                        setTimeout(() => {
+                            layer.style.transform = 'translateX(-50%) scale(1)';
+                        }, 100);
+                    });
+                    
+                    // Create heart effect
+                    createHearts(1);
+                    
+                    // If 10 taps reached, go to heartfelt messages (page 6)
+                    if (cakeTaps >= 10) {
+                        setTimeout(() => {
+                            showPage(6);
+                            createHearts(8);
+                        }, 800);
+                    }
+                }
+            });
+        }
+        
+        // Show specific page
+        function showPage(pageNum) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show requested page
+            const pageToShow = document.getElementById('page' + pageNum);
+            if (pageToShow) {
+                pageToShow.classList.add('active');
+                currentPage = pageNum;
+                updateProgressDots();
+            }
+        }
+        
+        // Next page
+        function nextPage() {
+            if (currentPage < 10) {
+                showPage(currentPage + 1);
+            }
+        }
+        
+        // Previous page
+        function prevPage() {
+            if (currentPage > 1) {
+                showPage(currentPage - 1);
+            }
+        }
+        
+        // Update progress dots
+        function updateProgressDots() {
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.remove('active');
+                if (index + 1 === currentPage) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+        
+        // Restart card
+        function restartCard() {
+            // Reset state
+            candlesBlown = 0;
+            cakeTaps = 0;
+            currentPage = 1;
+            
+            // Reset candles
+            document.querySelectorAll('.candle').forEach(candle => {
+                candle.classList.remove('flame-off');
+                candle.classList.add('flame-on');
+            });
+            
+            // Reset counters
+            document.getElementById('candle-count').textContent = '0';
+            document.getElementById('cut-count').textContent = '0';
+            
+            // Show first page
+            showPage(1);
+            
+            // Create celebration
+            createHearts(5);
+        }
+    </script>
+</body>
+</html>
